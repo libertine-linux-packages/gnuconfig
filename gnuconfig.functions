@@ -1,0 +1,82 @@
+# This file is part of libertine linux's package gnuconfig. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/libertine-linux-packages/gnuconfig/master/COPYRIGHT. No part of libertine linux's package gnuconfig, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2016 The developers of libertine linux's package gnuconfig. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/libertine-linux-packages/gnuconfig/master/COPYRIGHT.
+
+
+variant=upstream
+
+case "$package" in
+	
+	build_gnuconfig)
+		
+		libertine_compile_build_gnuconfig()
+		{
+			_libertine_public_gnuconfig_compile "$(libertine_public_outputMiscPath)"
+		}
+		
+	;;
+	
+	gnuconfig)
+		
+		libertine_compile_gnuconfig()
+		{
+			_libertine_public_gnuconfig_compile "$(libertine_public_outputInitramfsPath)"/usr/bin
+		}
+		
+	;;
+	
+esac
+
+depends build_busybox
+build_needs mkdir sed chmod cp
+_libertine_public_gnuconfig_compile()
+{
+	local outputSysrootPath="$1"
+	
+	_libertine_public_gnuconfig_installConfigGuess()
+	{
+		local sysrootFolderPath="$1"
+	
+		local configGuessDestinationFolderPath="$sysrootFolderPath"
+	
+		mkdir -m 0755 -p "$configGuessDestinationFolderPath"
+	
+		# Remove hardcoded absolute path assumptions
+		sed -e 's;/bin/universe;universe;g' \
+			-e 's;/usr/bin/uname;uname;g' \
+			-e 's;/bin/uname;uname;g' \
+			-e 's;/usr/bin/arch;arch;g' \
+			-e 's;/bin/arch;arch;g' \
+			-e 's;/usr/bin/oslevel;oslevel;g' \
+			-e 's;/usr/bin/lslpp;lslpp;g' \
+			-e 's;/usr/bin/getconf;getconf;g' \
+			-e 's;objdump --private-headers /bin/sh;objdump --private-headers "$(command -v sh)";g' \
+			-e 's;/usr/sbin/sizer;sizer;g' \
+			-e 's;/usr/sbin/psrinfo;psrinfo;g' \
+			-e 's;/usr/sbin/lsdev;lsdev;g' \
+			-e 's;/usr/sbin/lsattr;lsattr;g' \
+			-e 's;/usr/sbin/sysversion;sysversion;g' \
+			-e 's;/usr/convex/getsysinfo;getsysinfo;g' \
+			"$(libertine_public_packagePath)"/source/config.guess >"$configGuessDestinationFolderPath"/config.guess
+		libertine_public_adjustShaBang "$configGuessDestinationFolderPath"/config.guess
+		chmod +x "$configGuessDestinationFolderPath"/config.guess
+	}
+
+	_libertine_compile_gnuconfig_copyExecutableFile()
+	{
+		local sysrootFolderPath="$1"
+		local parentFolder="$2"
+		local fileName="$3"
+	
+		local destinationFolderPath="$sysrootFolderPath"
+	
+		mkdir -m 0755 -p "$destinationFolderPath"
+	
+		cp "$(libertine_public_packagePath)"/"$parentFolder"/"$fileName" "$destinationFolderPath"
+		libertine_public_adjustShaBang "$destinationFolderPath"/"$fileName"
+	}
+	
+	_libertine_public_gnuconfig_installConfigGuess "$outputSysrootPath"
+	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" 'source' config.sub
+	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" '.' config.rpath
+	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" '.' config.libpath
+}
