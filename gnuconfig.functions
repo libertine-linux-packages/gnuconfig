@@ -56,7 +56,7 @@ _libertine_public_gnuconfig_compile()
 			-e 's;/usr/sbin/lsattr;lsattr;g' \
 			-e 's;/usr/sbin/sysversion;sysversion;g' \
 			-e 's;/usr/convex/getsysinfo;getsysinfo;g' \
-			"$(libertine_public_packagePath)"/source/config.guess >"$configGuessDestinationFolderPath"/config.guess
+			"$(libertine_public_sourcePath)"/config.guess >"$configGuessDestinationFolderPath"/config.guess
 		libertine_public_adjustShaBang "$configGuessDestinationFolderPath"/config.guess
 		chmod +x "$configGuessDestinationFolderPath"/config.guess
 	}
@@ -76,7 +76,7 @@ _libertine_public_gnuconfig_compile()
 	}
 	
 	_libertine_public_gnuconfig_installConfigGuess "$outputSysrootPath"
-	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" 'source' config.sub
+	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" "$variant" config.sub
 	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" '.' config.rpath
 	_libertine_compile_gnuconfig_copyExecutableFile "$outputSysrootPath" '.' config.libpath
 }
